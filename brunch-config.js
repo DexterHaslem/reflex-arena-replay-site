@@ -1,5 +1,5 @@
 exports.config = {
-  //hot: true,
+  hot: true,
 
   files: {
     javascripts: {

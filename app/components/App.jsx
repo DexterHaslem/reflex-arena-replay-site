@@ -12,7 +12,6 @@ import FileListTable from './FileListTable';
  </tr>
  */
 const App = ({files}) => {
-
     return (
         <div>
             <div className="page-header">
@@ -25,7 +24,9 @@ const App = ({files}) => {
 };
 
 const mapStateToProps = state => {
-    return { count: state };
+    return {
+
+    };
 };
 
 const mapDispatchToProps = dispatch => {
