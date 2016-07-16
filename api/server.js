@@ -47,7 +47,7 @@ const reduceStats = fileStats => ({
     filename: fileStats.file,
     size: fileStats.stats.size, // bytes (st_size)
     time: fileStats.stats.mtime.getTime(),
-    href: hrefStr + fileStats.filename
+    href: hrefStr + fileStats.file
 });
 
 const updateFiles = () => {
