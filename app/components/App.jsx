@@ -3,21 +3,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import FileListTable from './FileListTable';
 import * as actions from '../actions/appActions';
-/*
- <tr>
- <th>{{ replay.filename }}</th>
- <th>{{ "%s/%s/%s - %s:%s"|format(replay.time.month, replay.time.day, replay.time.year, replay.time.hour, replay.time.minute)}}</th>
- <th>{{ replay.size }}</th>
- <th><a href="{{ replay.href }}">Download</a></th>
- </tr>
- */
+
 class App extends React.Component {
     constructor(props) {
         super(props);
     }
 
     componentWillMount() {
-        //console.log(this.props);
         this.props.getFiles();
     }
 
