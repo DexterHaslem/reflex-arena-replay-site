@@ -22,7 +22,7 @@ if (module.hot) {
 const load = () => {
   ReactDOM.render(
     <Provider store={store}>
-      <App />
+      <App foo={false}/>
     </Provider>,
     document.querySelector('#app')
   );
