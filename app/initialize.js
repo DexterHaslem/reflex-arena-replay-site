@@ -1,11 +1,15 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
-import counterApp from './reducers';
+import { createStore, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
+import reducer from './reducers';
 import App from 'components/App';
 
-const store = createStore(counterApp, module.hot && module.hot.data);
+//const store = createStore(reducer, applyMiddleware(thunk));
+const store = createStore(reducer, [],
+    compose(applyMiddleware(thunk),
+            window.devToolsExtension ? window.devToolsExtension() : f => f));
 
 if (module.hot) {
   module.hot.accept('./reducers', () => {
@@ -22,7 +26,7 @@ if (module.hot) {
 const load = () => {
   ReactDOM.render(
     <Provider store={store}>
-      <App foo={false}/>
+      <App />
     </Provider>,
     document.querySelector('#app')
   );

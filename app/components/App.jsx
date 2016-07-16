@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import FileListTable from './FileListTable';
-
+import * as actions from '../actions/appActions';
 /*
  <tr>
  <th>{{ replay.filename }}</th>
@@ -11,27 +11,45 @@ import FileListTable from './FileListTable';
  <th><a href="{{ replay.href }}">Download</a></th>
  </tr>
  */
-const App = ({files}) => {
-    return (
-        <div>
-            <div className="page-header">
-                <h1>fragged.online Reflex demos</h1>
-            </div>
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+    }
 
-            <FileListTable files={files} />
-        </div>
-    );
+    componentWillMount() {
+        //console.log(this.props);
+        this.props.getFiles();
+    }
+
+    // cant be static, react wants instance method here
+    //noinspection JSMethodCanBeStatic
+    render(){
+        const files = null;
+        return (
+            <div>
+                <div className="page-header">
+                <h1>fragged.online Reflex demos</h1>
+                </div>
+
+                <FileListTable files={files} />
+            </div>);
+    }
+}
+
+App.propTypes = {
+    files: PropTypes.arrayOf(PropTypes.shape({
+        // TODO: final shape
+    }))
 };
 
 const mapStateToProps = state => {
     return {
-
+        files: state
     };
 };
 
 const mapDispatchToProps = dispatch => {
-    return {};
+    return bindActionCreators(actions, dispatch);
 };
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
