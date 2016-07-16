@@ -17,13 +17,15 @@ class App extends React.Component {
     //noinspection JSMethodCanBeStatic
     render(){
         return (
-            <div>
+            <div className="container-fluid">
                 <div className="pageHeader">
                     <h1>fragged.online Reflex demos</h1>
                 </div>
                 <FileListTable files={this.props.files} />
 
-                <span>Questions or comments? <a href="mailto:dexter.haslem@gmail.com" target="_top">Email</a></span>
+                <h4>
+                    <span>Questions or comments? <a href="mailto:dexter.haslem@gmail.com" target="_top">Email</a></span>
+                </h4>
             </div>);
     }
 }

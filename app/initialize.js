@@ -6,6 +6,9 @@ import thunk from 'redux-thunk';
 import reducer from './reducers';
 import App from 'components/App';
 
+// fix IE11 promise
+let Promise = require('es6-promise').Promise;
+
 //const store = createStore(reducer, applyMiddleware(thunk));
 const store = createStore(reducer, [],
     compose(applyMiddleware(thunk),
