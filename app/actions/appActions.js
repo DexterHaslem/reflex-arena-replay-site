@@ -4,23 +4,30 @@
 
 import {GET_FILES} from '../constants/actionTypes';
 import {times} from 'ramda';
+import axios from 'axios';
+
+const URL_ROOT = 'http://localhost:8080/';
+
+const toUrl = (endpoint) => URL_ROOT + endpoint;
 
 export function getFiles() {
-
-    // todo: ajax call
-
     return dispatch => {
-        const payload = times(i => ({
-            id: i,
-            filename: i,
-            size: i * 10,
-            time: Date.now() - (i * 1000),
-            href: 'http://foo.com/asdf/fasdf'
-        }), 500);
+        axios.get(toUrl('getFiles'))
+            .then(resp => {
+                return dispatch({
+                    type: GET_FILES,
+                    payload: resp.data
+                });
+            })
+            .catch(err => {
 
-        return dispatch({
-            type: GET_FILES,
-            payload
-        });
+            });
+        // const payload = times(i => ({
+        //     id: i,
+        //     filename: i,
+        //     size: i * 10,
+        //     time: Date.now() - (i * 1000),
+        //     href: 'http://foo.com/asdf/fasdf'
+        // }), 500);
     };
 }
