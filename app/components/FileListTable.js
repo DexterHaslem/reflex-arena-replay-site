@@ -11,11 +11,11 @@ const FileListTable = ({files}) => {
     //     return (<a className="btn btn-primary btn-sm" href={cell}>Download</a>);
     // };
 
-    const timeFormat = (cell, row) => {
+    const timeFormat = (cell) => {
         return String(new Date(cell));
     };
 
-    const sizeFormat = (cell, row) => {
+    const sizeFormat = (cell) => {
         const megs = cell / (1024 * 1024);
         // stupid 2 decimal rounding thing
         const rounded = Math.round(megs * 100) / 100;
