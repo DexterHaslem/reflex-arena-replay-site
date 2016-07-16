@@ -8,16 +8,20 @@
 
 const API_PORT = 8080;
 // LOCALHOST debug
-//const API_HOST = 'localhost';
-const API_HOST = 'fragged.online';
+const API_HOST = 'localhost';
+//const API_HOST = 'fragged.online';
 const express = require('express');
 const app = express();
 const fs = require('fs');
 const path = require('path');
+const async = require('async');
 
-//const REPLAYDIR = './testreplays';
+const REPLAYDIR = './testreplays';
 //server
-const REPLAYDIR = 'C:\\steamcmd\\reflex_ds\\replays';
+//const REPLAYDIR = 'C:\\steamcmd\\reflex_ds\\replays';
+
+// list of files on disk is updated every this often
+const FILE_UPDATE_SECONDS = 25;
 
 // turn off cors
 app.use((req, res, next) => {
@@ -28,38 +32,58 @@ app.use((req, res, next) => {
 
 let hrefStr = '';
 
-let listener = app.listen(API_PORT, API_HOST, err => {
-    if (err) {
-        console.log(err);
-    } else {
-        // TODO: hardcoded http hehe
-        hrefStr = 'http://' + listener.address().address + ":"+ listener.address().port + '/';
-        console.log("App started on", hrefStr);
-    }
-});
-
 // serve the folder as static files so we can use hrefs directly to 'em
 // so we dont have to expose an api to send down
 app.use(express.static(REPLAYDIR));
 
-const toFileStats = (filename) => {
-    const stats = fs.statSync(path.join(REPLAYDIR,filename)); //, (err, stats)=>({
-    return {
-        filename: filename,
-        size: stats.size, // bytes (st_size)
-        time: stats.mtime.getTime(),
-        href: hrefStr + filename
-    };
-};
+// update files on a timer, instead of every request. was an invitation to get ddos'd
+let fileStatsCache = [];
 
-app.get('/getFiles', (req,res) => {
+const reduceStats = fileStats => ({
+    filename: fileStats.file,
+    size: fileStats.stats.size, // bytes (st_size)
+    time: fileStats.stats.mtime.getTime(),
+    href: hrefStr + fileStats.filename
+});
+
+const updateFiles = () => {
     fs.readdir(REPLAYDIR, (err, files)=> {
         if (err) {
-            res.send(err);
             return;
         }
-        res.json(files.map(toFileStats));
+        // smash filename in the stat callback. make sure to call async's callback. what a nightmare
+        async.map(files, (file, cb) => {
+            fs.stat(path.join(REPLAYDIR,file), (e, stats) =>
+                cb(e, {file, stats})
+            )},
+            (statErr, results) => {
+                if (!statErr) {
+                    fileStatsCache = results.map(reduceStats);
+                }
+            }
+        );
     });
+};
+
+// update files on disk once every 30 seconds
+// TODO fs.watch
+const updateTimer = setInterval(updateFiles, 1000 * FILE_UPDATE_SECONDS);
+
+app.get('/getFiles', (req,res) => {
+    res.json(fileStatsCache);
+});
+
+let listener = app.listen(API_PORT, API_HOST, err => {
+    if (err) {
+        console.log(err);
+        clearInterval(updateTimer);
+    } else {
+        // TODO: hardcoded http hehe
+        hrefStr = 'http://' + listener.address().address + ":"+ listener.address().port + '/';
+        console.log("App started on", hrefStr);
+        // get files right away so initial 30 seconds arent empty
+        updateFiles();
+    }
 });
 
 // app.get('/sendFile/:name', (req,res)=> {
@@ -67,3 +91,4 @@ app.get('/getFiles', (req,res) => {
 //     //res.download()
 //     //res.sendFile();
 // });
+
