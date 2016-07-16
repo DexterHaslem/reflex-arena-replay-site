@@ -12,7 +12,12 @@ export function getFiles() {
 
         return dispatch({
             type: GET_FILES,
-            payload: ['foo']
+            payload: [{
+                "filename": 'filename',
+                "size": 'size',
+                "time": String(new Date()),
+                "href": 'href'
+            }]
         });
     };
 }

@@ -24,14 +24,12 @@ class App extends React.Component {
     // cant be static, react wants instance method here
     //noinspection JSMethodCanBeStatic
     render(){
-        const files = null;
         return (
             <div>
-                <div className="page-header">
+                <div className="pageHeader">
                 <h1>fragged.online Reflex demos</h1>
                 </div>
-
-                <FileListTable files={files} />
+                <FileListTable files={this.props.files} />
             </div>);
     }
 }

@@ -11,18 +11,6 @@ const store = createStore(reducer, [],
     compose(applyMiddleware(thunk),
             window.devToolsExtension ? window.devToolsExtension() : f => f));
 
-if (module.hot) {
-  module.hot.accept('./reducers', () => {
-    store.replaceReducer(require('./reducers').default);
-  });
-  module.hot.accept();
-
-  module.hot.dispose((data) => {
-    data.counter = store.getState();
-    [].slice.apply(document.querySelector('#app').children).forEach(function(c) { c.remove() });
-  });
-}
-
 const load = () => {
   ReactDOM.render(
     <Provider store={store}>
