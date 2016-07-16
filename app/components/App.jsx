@@ -19,9 +19,11 @@ class App extends React.Component {
         return (
             <div>
                 <div className="pageHeader">
-                <h1>fragged.online Reflex demos</h1>
+                    <h1>fragged.online Reflex demos</h1>
                 </div>
                 <FileListTable files={this.props.files} />
+
+                <span>Questions or comments? <a href="mailto:dexter.haslem@gmail.com" target="_top">Email</a></span>
             </div>);
     }
 }
