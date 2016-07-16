@@ -5,13 +5,23 @@ app = Flask(__name__)
 
 # on actual server
 # replay_dir = "C:\\steamcmd\\reflex_ds\\replays"
-replay_dir = 'testreplays!!!'
-
+replay_dir = 'testreplays'
 
 @app.route('/')
 def index():
-    return render_template('index.html', replays=get_replays(replay_dir))
+    return file_list()
 
+@app.route('/parsed')
+def parsed():
+    return render_template('parsed.html', replays=get_replays(replay_dir))
+
+@app.route('/fileList')
+def file_list():
+    return render_template('filelist.html', replays=get_replays(replay_dir))
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 @app.route('/getReplays')
 def get_replays_rest():
