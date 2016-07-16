@@ -3,7 +3,7 @@
  */
 
 import {GET_FILES} from '../constants/actionTypes';
-import {times, replace} from 'ramda';
+//import {times, replace} from 'ramda';
 import axios from 'axios';
 
 //const URL_ROOT = 'http://localhost:8080/';
