@@ -7,21 +7,25 @@
 'use strict';
 
 const API_PORT = 8080;
-// LOCALHOST debug
-const API_HOST = 'localhost';
-//const API_HOST = 'fragged.online';
 const express = require('express');
 const app = express();
 const fs = require('fs');
 const path = require('path');
 const async = require('async');
+const moment = require('moment');
 
-const REPLAYDIR = './testreplays';
+
+// TODO: node env
+// LOCALHOST debug
+//const API_HOST = 'localhost';
+//const REPLAYDIR = './testreplays';
 //server
-//const REPLAYDIR = 'C:\\steamcmd\\reflex_ds\\replays';
+const REPLAYDIR = 'C:\\steamcmd\\reflex_ds\\replays';
+const API_HOST = 'fragged.online';
 
-// list of files on disk is updated every this often
-const FILE_UPDATE_SECONDS = 25;
+// if several file changes come through at once, we want to throttle
+const FILE_UPDATE_LATCH_SECONDS = 2;
+let lastFolderChangeTime = moment();
 
 // turn off cors
 app.use((req, res, next) => {
@@ -65,9 +69,21 @@ const updateFiles = () => {
     });
 };
 
-// update files on disk once every 30 seconds
-// TODO fs.watch
-const updateTimer = setInterval(updateFiles, 1000 * FILE_UPDATE_SECONDS);
+const replayDirChanged = (event, filename) => {
+    // this shouldnt be needed, but just in case.
+
+    // this will trigger for EVERY file change, we need to latch in case, eg whole folder was deleted
+    const timeDiff = moment().diff(lastFolderChangeTime, 'seconds');
+    lastFolderChangeTime = moment();
+    if (timeDiff < FILE_UPDATE_LATCH_SECONDS) {
+        return;
+    }
+    // only two events come in, rename and change which is barbaric so dont try anything clever w/ it
+    console.log(new Date().toLocaleTimeString(), REPLAYDIR, "changed:", event, filename, "updating cache");
+    updateFiles();
+};
+
+const watcher = fs.watch(REPLAYDIR, replayDirChanged);
 
 app.get('/getFiles', (req,res) => {
     res.json(fileStatsCache);
@@ -76,7 +92,7 @@ app.get('/getFiles', (req,res) => {
 let listener = app.listen(API_PORT, API_HOST, err => {
     if (err) {
         console.log(err);
-        clearInterval(updateTimer);
+        watcher.close();
     } else {
         // TODO: hardcoded http hehe
         hrefStr = 'http://' + listener.address().address + ":"+ listener.address().port + '/';
@@ -85,10 +101,3 @@ let listener = app.listen(API_PORT, API_HOST, err => {
         updateFiles();
     }
 });
-
-// app.get('/sendFile/:name', (req,res)=> {
-//     //res.send(req.params);
-//     //res.download()
-//     //res.sendFile();
-// });
-
