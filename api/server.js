@@ -7,7 +7,9 @@
 'use strict';
 
 const API_PORT = 8080;
-const API_HOST = 'localhost';
+// LOCALHOST debug
+//const API_HOST = 'localhost';
+const API_HOST = 'fragged.online';
 const express = require('express');
 const app = express();
 const fs = require('fs');
