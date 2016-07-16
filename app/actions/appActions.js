@@ -3,10 +3,11 @@
  */
 
 import {GET_FILES} from '../constants/actionTypes';
-import {times} from 'ramda';
+import {times, replace} from 'ramda';
 import axios from 'axios';
 
-const URL_ROOT = 'http://localhost:8080/';
+//const URL_ROOT = 'http://localhost:8080/';
+const URL_ROOT = window.location.protocol + '//' + window.location.hostname + ':8080/';
 
 const toUrl = (endpoint) => URL_ROOT + endpoint;
 
