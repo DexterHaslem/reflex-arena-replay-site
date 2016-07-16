@@ -13,9 +13,12 @@ class ReplaysTestCase(unittest.TestCase):
         replays = get_replays_in_dir(self.test_dir)
         assert len(replays) == 1
         d = replays[0]
-        assert d['time'] == 1468043981
+        assert d['time'].month == 7
+        assert d['time'].day == 8
+        assert d['time'].hour == 23
+        assert d['time'].minute == 59
         assert d['size'] == 184
-        assert d['href'] == 'testreplays\\2R2H_Trampoline_09Jul2016_0059_0markers.rep'
+        assert d['href'] == '/sendFile/2R2H_Trampoline_09Jul2016_0059_0markers'#'testreplays\\2R2H_Trampoline_09Jul2016_0059_0markers.rep'
         assert d['filename'] == '2R2H_Trampoline_09Jul2016_0059_0markers'
 
 

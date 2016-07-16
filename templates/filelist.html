@@ -28,7 +28,7 @@
     <thead>
     <tr>
         <th>File</th>
-        <th>Time</th>
+        <th>Time (MM/DD/YYYY - HH:MM)</th>
         <th>Replay Size(kb)</th>
         <th>Link</th>
     </tr>
@@ -38,7 +38,7 @@
         {% for replay in replays %}
             <tr>
                 <th>{{ replay.filename }}</th>
-                <th>{{ replay.time }}</th>
+                <th>{{ "%s/%s/%s - %s:%s"|format(replay.time.month, replay.time.day, replay.time.year, replay.time.hour, replay.time.minute)}}</th>
                 <th>{{ replay.size }}</th>
                 <th><a href="{{ replay.href }}">Download</a></th>
             </tr>

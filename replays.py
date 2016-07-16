@@ -18,8 +18,8 @@ def get_replays_in_dir(root):
         ret.append({
             "filename": filename,
             "size": floor(getsize(fullpath) / 1024),
-            "time": floor(getmtime(fullpath)),
-            "href": fullpath
+            "time": datetime.fromtimestamp(getmtime(fullpath)),
+            "href": "/sendFile/" + filename
         })
     return ret
 
