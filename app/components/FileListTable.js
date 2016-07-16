@@ -4,12 +4,12 @@
 import React, { PropTypes } from 'react';
 //import * as ReactBootstrapTable from 'react-bootstrap-table';
 import ReactBootstrapTable from 'react-bootstrap-table';
-import {replace} from 'ramda';
+import {replace, compose} from 'ramda';
 
 const FileListTable = ({files}) => {
-    const downloadFormat = (cell, row) => {
-        return (<a href={cell}>Download</a>);
-    };
+    // const downloadFormat = (cell, row) => {
+    //     return (<a className="btn btn-primary btn-sm" href={cell}>Download</a>);
+    // };
 
     const timeFormat = (cell, row) => {
         return String(new Date(cell));
@@ -25,14 +25,24 @@ const FileListTable = ({files}) => {
     const nameFormat = (cell, row) => {
         // every replay ends with '_0markers.rep' so chop off on UI
         // so searching for eg 'mark' is less stupid
-        return replace('_0markers.rep', '', cell);
+        // NOTE: well haha, this is pointless in regard to search, because
+        // search is already handled before formatting so it doesnt help that situation
+        // not really a big deal for now
+        const name = replace('.rep', '',replace('_0markers', '', cell));
+        return (
+            <div>
+                <a className="btn btn-primary btn-sm" href={row.href}
+                   style={{marginRight: "10px"}}>Download</a>
+                <label className="control-label">{name}</label>
+            </div>);
     };
 
     const options = {
-        sizePerPageList: [ 20 ],
-        sizePerPage: 20,
+        sizePerPageList: [ 15 ],
+        sizePerPage: 15,
         // pageStartIndex: 0,
         // paginationSize: 5
+        clearSearch: true,
         defaultSortName: 'time',
         defaultSortOrder: 'desc'
     };
@@ -44,11 +54,12 @@ const FileListTable = ({files}) => {
                         condensed={true}
                         pagination={true}
                         search={true}
+                        multiColumnSearch={true}
                         options={options}>
             <TableHeaderColumn dataField="filename" isKey={true} dataSort={true} dataFormat={nameFormat}>Name</TableHeaderColumn>
             <TableHeaderColumn dataField="size" dataSort={true} width="100" dataFormat={sizeFormat}>Size</TableHeaderColumn>
             <TableHeaderColumn dataField="time" dataSort={true} dataFormat={timeFormat}>Time</TableHeaderColumn>
-            <TableHeaderColumn dataField="href" dataFormat={downloadFormat} width="100">Download</TableHeaderColumn>
+            {/*<TableHeaderColumn dataField="href" dataFormat={downloadFormat} width="100">Download</TableHeaderColumn>*/}
         </BootstrapTable>
     </div>);
 };
