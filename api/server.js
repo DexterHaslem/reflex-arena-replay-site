@@ -12,7 +12,10 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const path = require('path');
+
 const REPLAYDIR = './testreplays';
+//server
+//const REPLAYDIR = 'C:\\steamcmd\\reflex_ds\\replays';
 
 // turn off cors
 app.use((req, res, next) => {
