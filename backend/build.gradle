@@ -38,6 +38,7 @@ repositories {
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
+	compile('org.postgresql:postgresql')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
@@ -47,4 +48,26 @@ flyway {
 	url = props."spring.datasource.url"
 	user = props."spring.datasource.username"
 	password = props."spring.datasource.password"
+}
+
+
+//https://gist.github.com/jeremyjarrell/6083207
+task prefixNewMigrations {
+    fileTree(dir: 'src/main/resources/db/pendingmigration').exclude({ isFilePrefixed(it.file) }).each { file ->
+        doLast {
+
+            def timestamp = new Date().format('yyyyMMddHHmmssSSS', TimeZone.getTimeZone('GMT'))
+
+            println "Renaming $file.name to ${timestamp}__$file.name"
+
+            file.renameTo("$file.parentFile.absolutePath$file.separator${timestamp}__$file.name")
+
+            // Sleep for a moment to avoid prefix conflicts when renaming multiple files
+            sleep(1*1000)
+        }
+    }
+}
+
+def isFilePrefixed(file) {
+    return (file.name ==~ '^\\d+__.*\\.sql\$')
 }
