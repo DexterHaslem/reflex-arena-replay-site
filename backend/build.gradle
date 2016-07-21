@@ -7,6 +7,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath ("org.flywaydb:flyway-gradle-plugin:4.0.3")
 	}
 }
 
@@ -14,7 +15,7 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'war'
-//apply plugin: 'flyway'
+apply plugin: 'org.flywaydb.flyway'
 
 war {
 // http://stackoverflow.com/questions/29848088/cannot-run-the-war-generated-from-gradle-bootrepackage-in-a-jhipster-based-web-a
@@ -22,8 +23,9 @@ war {
         attributes 'Main-Class' : 'org.springframework.boot.loader.WarLauncher',
                 'Start-Class': 'com.dmh.reflex.ReplaysApplication'
     }
-    archiveName 'reflexreplays.war' // skip version number etc
+    archiveName 'reflexreplays.war'
 }
+
 springBoot {
     mainClass = 'com.dmh.reflex.ReplaysApplication'
 }
@@ -37,4 +39,12 @@ repositories {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+flyway {
+	Properties props = new Properties()
+	props.load(new FileInputStream("${projectDir}/src/main/resources/application.properties"))
+	url = props."spring.datasource.url"
+	user = props."spring.datasource.username"
+	password = props."spring.datasource.password"
 }

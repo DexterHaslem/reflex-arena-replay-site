@@ -1,5 +1,6 @@
 .idea/
 .gradle/
+build/
 
 # Numerous always-ignore extensions
 *.diff
