@@ -28,7 +28,7 @@ public class ReplaysApplicationTests {
     public void testInsertMockNewParsedReplay() {
         ReplayInfoDTO testDto = new ReplayInfoDTO();
 
-        testDto.setFileName("dexTest.rep");
+        testDto.setFileName(String.format("%s.rep", new Date().getTime()));
         testDto.setFileSize(13378);
         testDto.setGameMode("1v1");
         testDto.setHostName("cool server");

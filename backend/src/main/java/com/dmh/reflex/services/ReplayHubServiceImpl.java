@@ -117,6 +117,7 @@ public class ReplayHubServiceImpl implements ReplayHubService {
             playerGame.setId(UUID.randomUUID());
             playerGame.setPlayerSteamId(player.getSteamId());
             playerGame.setScore(player.getScore());
+            playerGame.setGameId(game.getId());
             playerGame.setTeam(player.getTeam());
             playerGameJoinRepository.save(playerGame);
 
