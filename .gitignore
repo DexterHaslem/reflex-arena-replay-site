@@ -1,4 +1,6 @@
 .idea/
+.gradle/
+
 # Numerous always-ignore extensions
 *.diff
 *.err
