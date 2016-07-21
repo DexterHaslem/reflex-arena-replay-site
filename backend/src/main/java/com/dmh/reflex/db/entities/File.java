@@ -30,4 +30,12 @@ public class File {
     public void setId(UUID id) {
         this.id = id;
     }
+
+    public byte[] getContents() {
+        return contents;
+    }
+
+    public void setContents(byte[] contents) {
+        this.contents = contents;
+    }
 }

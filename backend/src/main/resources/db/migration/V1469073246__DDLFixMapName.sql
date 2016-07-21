@@ -1,0 +1,1 @@
+alter table replays.map rename map_name to "name";

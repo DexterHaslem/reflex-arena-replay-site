@@ -23,6 +23,7 @@ public class PlayerGame {
     private long playerSteamId;
 
     @Column(name="game_id", unique = true, nullable = false)
+    @Type(type = "pg-uuid")
     private UUID gameId;
 
     // maybe not the best idea, by sticking state in here we cant use @JoinTable and get these
@@ -39,5 +40,37 @@ public class PlayerGame {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public long getPlayerSteamId() {
+        return playerSteamId;
+    }
+
+    public void setPlayerSteamId(long playerSteamId) {
+        this.playerSteamId = playerSteamId;
+    }
+
+    public UUID getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(UUID gameId) {
+        this.gameId = gameId;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getTeam() {
+        return team;
+    }
+
+    public void setTeam(int team) {
+        this.team = team;
     }
 }

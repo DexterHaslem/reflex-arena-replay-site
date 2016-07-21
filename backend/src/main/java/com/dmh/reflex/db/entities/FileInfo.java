@@ -24,7 +24,8 @@ public class FileInfo {
     private String name;
 
     @Column(name="game_id")
-    private long game_id;
+    @Type(type = "pg-uuid")
+    private UUID gameId;
 
     @Column(name="contents_id")
     @Type(type = "pg-uuid")
@@ -40,5 +41,37 @@ public class FileInfo {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public UUID getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(UUID gameId) {
+        this.gameId = gameId;
+    }
+
+    public UUID getContentsId() {
+        return contentsId;
+    }
+
+    public void setContentsId(UUID contentsId) {
+        this.contentsId = contentsId;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 }

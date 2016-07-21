@@ -33,4 +33,20 @@ public class PlayerName {
     public void setId(UUID id) {
         this.id = id;
     }
+
+    public long getPlayerSteamId() {
+        return playerSteamId;
+    }
+
+    public void setPlayerSteamId(long playerSteamId) {
+        this.playerSteamId = playerSteamId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

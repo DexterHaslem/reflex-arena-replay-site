@@ -1,0 +1,1 @@
+alter table replays.game add column timestamp timestamp not null;
