@@ -56,11 +56,13 @@ task prefixNewMigrations {
     fileTree(dir: 'src/main/resources/db/pendingmigration').exclude({ isFilePrefixed(it.file) }).each { file ->
         doLast {
 
-            def timestamp = new Date().format('yyyyMMddHHmmssSSS', TimeZone.getTimeZone('GMT'))
+            def epoc =  (long) Math.round(System.currentTimeMillis() / 1000L)
+            def newFileName = "V${epoc}__$file.name";
 
-            println "Renaming $file.name to ${timestamp}__$file.name"
+            println "Renaming $file.name to $newFileName"
 
-            file.renameTo("$file.parentFile.absolutePath$file.separator${timestamp}__$file.name")
+
+            file.renameTo($/${projectDir}\src\main\resources\db\migration\$newFileName/$)
 
             // Sleep for a moment to avoid prefix conflicts when renaming multiple files
             sleep(1*1000)
