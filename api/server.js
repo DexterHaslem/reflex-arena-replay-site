@@ -42,6 +42,7 @@ app.use(express.static(REPLAYDIR));
 
 // update files on a timer, instead of every request. was an invitation to get ddos'd
 let fileStatsCache = [];
+let cachedJsonResp = null;
 
 const reduceStats = fileStats => ({
     filename: fileStats.file,
@@ -51,6 +52,7 @@ const reduceStats = fileStats => ({
 });
 
 const updateFiles = () => {
+    cachedJsonResp = null;
     fs.readdir(REPLAYDIR, (err, files)=> {
         if (err) {
             return;
@@ -86,7 +88,10 @@ const replayDirChanged = (event, filename) => {
 const watcher = fs.watch(REPLAYDIR, replayDirChanged);
 
 app.get('/getFiles', (req,res) => {
-    res.json(fileStatsCache);
+    if (!cachedJsonResp){
+        cachedJsonResp = JSON.stringify(fileStatsCache);
+    }
+    res.send(cachedJsonResp);
 });
 
 let listener = app.listen(API_PORT, API_HOST, err => {
