@@ -53,79 +53,83 @@ public class ReplayHubServiceImpl implements ReplayHubService {
 
         // make sure we dont upload the same replay.
         // file names have a timestamp and are somewhat unique
-        List<FileInfo> fileInfos = fileInfoJoinRepository.findByName(newReplay.getFileName());
-        Assert.isTrue(fileInfos.isEmpty());
+        try {
+            List<FileInfo> fileInfos = fileInfoJoinRepository.findByName(newReplay.getFileName());
+            Assert.isTrue(fileInfos.isEmpty());
 
-        Map map = mapRepository.findOne(newReplay.getMapWorkshopId());
-        if (map == null) {
-            // TODO: assumes no maps of same name exist without map workshop id for now
-            // which is possible because it was added in later replay header proto
-            map = new Map();
-            map.setName(newReplay.getMapName());
-            map.setWorkshopId(newReplay.getMapWorkshopId());
-            mapRepository.save(map);
-        }
-
-        // create a game object, most other things point at it from here on out
-        Game game = new Game();
-        game.setTimestamp(newReplay.getTimestamp());
-        game.setPlayerCount(newReplay.getPlayerCount());
-        game.setMapId(map.getWorkshopId());
-        game.setHostName(newReplay.getHostName());
-        game.setGameMode(newReplay.getGameMode());
-        game.setId(UUID.randomUUID());
-        gameRepository.save(game);
-
-        // add file meta data
-        // make file contents first if present
-        // well we always have to add something currnetly
-        File file = new File();
-        file.setId(UUID.randomUUID());
-        file.setContents(newReplay.getFileContents());
-        if (file.getContents() == null) {
-            byte[] contents = {(byte) 255};
-            file.setContents(contents);
-        }
-
-        fileRepository.save(file);
-
-        FileInfo newFileInfo = new FileInfo();
-        newFileInfo.setId(UUID.randomUUID());
-        newFileInfo.setName(newReplay.getFileName());
-        newFileInfo.setGameId(game.getId());
-        newFileInfo.setContentsId(file.getId());
-        // dont rely on contents, they could have skipped upload
-        newFileInfo.setSize(newReplay.getFileSize());
-        fileInfoJoinRepository.save(newFileInfo);
-
-        // next do player stuff for all players present
-
-        List<ReplayInfoPlayerDTO> players = newReplay.getPlayers();
-        Assert.notNull(players);
-
-        // TODO: assumes steam id is always present, check
-        for(ReplayInfoPlayerDTO player : players) {
-            Player playerEnt = playerRepository.findOne(player.getSteamId());
-            if (playerEnt == null) {
-                playerEnt = new Player();
-                playerEnt.setSteamId(player.getSteamId());
-                playerRepository.save(playerEnt);
+            Map map = mapRepository.findOne(newReplay.getMapWorkshopId());
+            if (map == null) {
+                // TODO: assumes no maps of same name exist without map workshop id for now
+                // which is possible because it was added in later replay header proto
+                map = new Map();
+                map.setName(newReplay.getMapName());
+                map.setWorkshopId(newReplay.getMapWorkshopId());
+                mapRepository.save(map);
             }
 
-            // create game join for this specific game
-            PlayerGame playerGame = new PlayerGame();
-            playerGame.setId(UUID.randomUUID());
-            playerGame.setPlayerSteamId(player.getSteamId());
-            playerGame.setScore(player.getScore());
-            playerGame.setGameId(game.getId());
-            playerGame.setTeam(player.getTeam());
-            playerGameJoinRepository.save(playerGame);
+            // create a game object, most other things point at it from here on out
+            Game game = new Game();
+            game.setTimestamp(newReplay.getTimestamp());
+            game.setPlayerCount(newReplay.getPlayerCount());
+            game.setMapId(map.getWorkshopId());
+            game.setHostName(newReplay.getHostName());
+            game.setGameMode(newReplay.getGameMode());
+            game.setId(UUID.randomUUID());
+            gameRepository.save(game);
 
-            // dont forget to check to update all aliases for this player
-            AddPlayerAlias(player);
+            // add file meta data
+            // make file contents first if present
+            // well we always have to add something currnetly
+            File file = new File();
+            file.setId(UUID.randomUUID());
+            file.setContents(newReplay.getFileContents());
+            if (file.getContents() == null) {
+                byte[] contents = {(byte) 255};
+                file.setContents(contents);
+            }
+
+            fileRepository.save(file);
+
+            FileInfo newFileInfo = new FileInfo();
+            newFileInfo.setId(UUID.randomUUID());
+            newFileInfo.setName(newReplay.getFileName());
+            newFileInfo.setGameId(game.getId());
+            newFileInfo.setContentsId(file.getId());
+            // dont rely on contents, they could have skipped upload
+            newFileInfo.setSize(newReplay.getFileSize());
+            fileInfoJoinRepository.save(newFileInfo);
+
+            // next do player stuff for all players present
+
+            List<ReplayInfoPlayerDTO> players = newReplay.getPlayers();
+            Assert.notNull(players);
+
+            // TODO: assumes steam id is always present, check
+            for (ReplayInfoPlayerDTO player : players) {
+                Player playerEnt = playerRepository.findOne(player.getSteamId());
+                if (playerEnt == null) {
+                    playerEnt = new Player();
+                    playerEnt.setSteamId(player.getSteamId());
+                    playerRepository.save(playerEnt);
+                }
+
+                // create game join for this specific game
+                PlayerGame playerGame = new PlayerGame();
+                playerGame.setId(UUID.randomUUID());
+                playerGame.setPlayerSteamId(player.getSteamId());
+                playerGame.setScore(player.getScore());
+                playerGame.setGameId(game.getId());
+                playerGame.setTeam(player.getTeam());
+                playerGameJoinRepository.save(playerGame);
+
+                // dont forget to check to update all aliases for this player
+                AddPlayerAlias(player);
+            }
+
+            return true;
+        } catch (Exception ex) {
+            return false;
         }
-
-        return true;
     }
 
     private void AddPlayerAlias(ReplayInfoPlayerDTO player) {
