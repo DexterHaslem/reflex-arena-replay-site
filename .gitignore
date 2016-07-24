@@ -29,3 +29,10 @@ node_modules/
 
 # Brunch output folder.
 public/
+
+bin/
+debug/
+
+*.obj
+*.exe
+*.suo
