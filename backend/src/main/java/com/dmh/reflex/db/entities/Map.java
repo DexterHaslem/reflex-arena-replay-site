@@ -15,6 +15,10 @@ import java.util.UUID;
 @Table(name="map", schema="replays")
 public class Map {
     @Id
+    @Column(name="id", unique = true, nullable = false)
+    @Type(type = "pg-uuid")
+    private UUID id;
+
     @Column(name="workshop_id", unique = true, nullable = false)
     private long workshopId;
 
@@ -35,5 +39,13 @@ public class Map {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 }

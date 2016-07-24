@@ -28,7 +28,8 @@ public class Game {
     private int playerCount;
 
     @Column(name="map_id")
-    private long mapId;
+    @Type(type = "pg-uuid")
+    private UUID mapId;
 
     @Column(name="host_name")
     private String hostName;
@@ -60,11 +61,11 @@ public class Game {
         this.playerCount = playerCount;
     }
 
-    public long getMapId() {
+    public UUID getMapId() {
         return mapId;
     }
 
-    public void setMapId(long mapId) {
+    public void setMapId(UUID mapId) {
         this.mapId = mapId;
     }
 

@@ -59,15 +59,30 @@ public class ReplayHubServiceImpl implements ReplayHubService {
             List<FileInfo> fileInfos = fileInfoJoinRepository.findByName(newReplay.getFileName());
             Assert.isTrue(fileInfos.isEmpty());
 
+            Map map = null;
             long mapWorkshopId = newReplay.getMapWorkshopId();
             if (mapWorkshopId == 0){
-                // old header
+                // old header or no id, try to find by name
+                List<Map> mapsByName = mapRepository.findByName(newReplay.getMapName());
+                if (!mapsByName.isEmpty()) {
+                    if (mapsByName.size() > 1) {
+                        System.out.println("Dup maps by name: " + newReplay.getMapName() + mapsByName.toArray());
+                    }
+                    map = mapsByName.get(0); // if we somehow end up w/ dups go with first
+                }
+            } else {
+                List<Map> mapsByWorkshopId = mapRepository.findByWorkshopId(mapWorkshopId);
+                if (!mapsByWorkshopId.isEmpty()) {
+                    if (mapsByWorkshopId.size() > 1) {
+                        System.out.println("Dup map by wid: " + newReplay.getMapName());
+                    }
+                    map = mapsByWorkshopId.get(0);
+                }
             }
-            Map map = mapRepository.findOne(mapWorkshopId);
+
             if (map == null) {
-                // TODO: assumes no maps of same name exist without map workshop id for now
-                // which is possible because it was added in later replay header proto
                 map = new Map();
+                map.setId(UUID.randomUUID());
                 map.setName(newReplay.getMapName());
                 map.setWorkshopId(newReplay.getMapWorkshopId());
                 mapRepository.save(map);
@@ -77,7 +92,7 @@ public class ReplayHubServiceImpl implements ReplayHubService {
             Game game = new Game();
             game.setTimestamp(newReplay.getTimestamp());
             game.setPlayerCount(newReplay.getPlayerCount());
-            game.setMapId(map.getWorkshopId());
+            game.setMapId(map.getId());
             game.setHostName(newReplay.getHostName());
             game.setGameMode(newReplay.getGameMode());
             game.setId(UUID.randomUUID());
@@ -110,26 +125,30 @@ public class ReplayHubServiceImpl implements ReplayHubService {
             List<ReplayInfoPlayerDTO> players = newReplay.getPlayers();
             Assert.notNull(players);
 
-            // TODO: assumes steam id is always present, check
-            for (ReplayInfoPlayerDTO player : players) {
-                Player playerEnt = playerRepository.findOne(player.getSteamId());
-                if (playerEnt == null) {
-                    playerEnt = new Player();
-                    playerEnt.setSteamId(player.getSteamId());
-                    playerRepository.save(playerEnt);
+            try {
+                // TODO: assumes steam id is always present, check
+                for (ReplayInfoPlayerDTO player : players) {
+                    Player playerEnt = playerRepository.findOne(player.getSteamId());
+                    if (playerEnt == null) {
+                        playerEnt = new Player();
+                        playerEnt.setSteamId(player.getSteamId());
+                        playerRepository.save(playerEnt);
+                    }
+
+                    // create game join for this specific game
+                    PlayerGame playerGame = new PlayerGame();
+                    playerGame.setId(UUID.randomUUID());
+                    playerGame.setPlayerSteamId(player.getSteamId());
+                    playerGame.setScore(player.getScore());
+                    playerGame.setGameId(game.getId());
+                    playerGame.setTeam(player.getTeam());
+                    playerGameJoinRepository.save(playerGame);
+
+                    // dont forget to check to update all aliases for this player
+                    AddPlayerAlias(player);
                 }
-
-                // create game join for this specific game
-                PlayerGame playerGame = new PlayerGame();
-                playerGame.setId(UUID.randomUUID());
-                playerGame.setPlayerSteamId(player.getSteamId());
-                playerGame.setScore(player.getScore());
-                playerGame.setGameId(game.getId());
-                playerGame.setTeam(player.getTeam());
-                playerGameJoinRepository.save(playerGame);
-
-                // dont forget to check to update all aliases for this player
-                AddPlayerAlias(player);
+            } catch (Exception ex) {
+                return false;
             }
 
             return true;

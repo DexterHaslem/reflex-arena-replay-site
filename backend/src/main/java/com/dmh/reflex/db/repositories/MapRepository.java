@@ -11,4 +11,5 @@ import java.util.UUID;
  */
 public interface MapRepository extends JpaRepository<Map, Long> {
     List<Map> findByName(String name);
+    List<Map> findByWorkshopId(long workshopId);
 }
