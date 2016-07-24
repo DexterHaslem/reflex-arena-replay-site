@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by Dexter on 7/20/2016.
@@ -65,18 +66,28 @@ public class ReplayHubServiceImpl implements ReplayHubService {
                 // old header or no id, try to find by name
                 List<Map> mapsByName = mapRepository.findByName(newReplay.getMapName());
                 if (!mapsByName.isEmpty()) {
-                    if (mapsByName.size() > 1) {
-                        System.out.println("Dup maps by name: " + newReplay.getMapName() + mapsByName.toArray());
-                    }
+//                    if (mapsByName.size() > 1) {
+//                        System.out.println("Dup maps by name: " + newReplay.getMapName() + mapsByName.toArray());
+//                    }
                     map = mapsByName.get(0); // if we somehow end up w/ dups go with first
+                    Assert.isTrue(mapsByName.size() < 2);
                 }
             } else {
                 List<Map> mapsByWorkshopId = mapRepository.findByWorkshopId(mapWorkshopId);
                 if (!mapsByWorkshopId.isEmpty()) {
-                    if (mapsByWorkshopId.size() > 1) {
-                        System.out.println("Dup map by wid: " + newReplay.getMapName());
-                    }
+//                    if (mapsByWorkshopId.size() > 1) {
+//                        System.out.println("Dup map by wid: " + newReplay.getMapName());
+//                    }
+
                     map = mapsByWorkshopId.get(0);
+
+                    // while we're here, find any maps by same name that were created w/o workshop id
+                    // and delete them to prevent duplicates
+                    if (map != null) {
+                        List<Map> mapsByName = mapRepository.findByName(newReplay.getMapName());
+                        List<Map> toDelete = mapsByName.stream().filter(m -> m.getWorkshopId() < 1).collect(Collectors.toList());
+                        mapRepository.delete(toDelete);
+                    }
                 }
             }
 
