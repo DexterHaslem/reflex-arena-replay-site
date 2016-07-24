@@ -34,6 +34,8 @@ public class FileInfo {
     @Column(name="size")
     private int size;
 
+    @Column(name="download_count")
+    private int downloadCount;
 
     public UUID getId() {
         return id;
@@ -73,5 +75,13 @@ public class FileInfo {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public int getDownloadCount() {
+        return downloadCount;
+    }
+
+    public void setDownloadCount(int downloadCount) {
+        this.downloadCount = downloadCount;
     }
 }

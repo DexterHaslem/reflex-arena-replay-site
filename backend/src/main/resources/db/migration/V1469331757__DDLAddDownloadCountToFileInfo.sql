@@ -1,0 +1,1 @@
+alter table replays.file_info add column download_count integer default 0;
