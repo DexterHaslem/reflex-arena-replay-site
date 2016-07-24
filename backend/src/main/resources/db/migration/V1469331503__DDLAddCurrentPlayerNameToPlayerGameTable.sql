@@ -1,0 +1,1 @@
+alter table replays.player_game add column player_name varchar(256) not null default '';

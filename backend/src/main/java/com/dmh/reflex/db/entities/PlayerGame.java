@@ -22,6 +22,9 @@ public class PlayerGame {
     @Column(name="player_steam_id", unique = true, nullable = false)
     private long playerSteamId;
 
+    @Column(name="player_name")
+    private String playerName;
+
     @Column(name="game_id", unique = true, nullable = false)
     @Type(type = "pg-uuid")
     private UUID gameId;
@@ -72,5 +75,13 @@ public class PlayerGame {
 
     public void setTeam(int team) {
         this.team = team;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
     }
 }
