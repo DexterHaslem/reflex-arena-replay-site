@@ -57,7 +57,8 @@ flyway {
 
 //https://gist.github.com/jeremyjarrell/6083207
 task prefixNewMigrations {
-    fileTree(dir: 'src/main/resources/db/pendingmigration').exclude({ isFilePrefixed(it.file) }).each { file ->
+    fileTree(dir: 'src/main/resources/db/pendingmigration').exclude({ isFilePrefixed(it.file) })
+			.exclude({ isSkipped(it.file) }).each { file ->
         doLast {
 
             def epoc =  (long) Math.round(System.currentTimeMillis() / 1000L)
@@ -73,7 +74,9 @@ task prefixNewMigrations {
         }
     }
 }
-
+def isSkipped(file) {
+	return file.name == '.gitignore' || file.name == '.gitkeep'
+}
 def isFilePrefixed(file) {
     return (file.name ==~ '^\\d+__.*\\.sql\$')
 }

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,7 +26,7 @@ public class ReplayHubServiceImpl implements ReplayHubService {
     private GameRepository gameRepository;
 
     @Autowired
-    private FileInfoRepository fileInfoJoinRepository;
+    private FileInfoRepository fileInfoRepository;
 
     @Autowired
     private FileRepository fileRepository;
@@ -43,11 +42,6 @@ public class ReplayHubServiceImpl implements ReplayHubService {
 
 
     @Override
-    public ReplayInfoDTO addReplay(byte[] replayFile) {
-        return null;
-    }
-
-    @Override
     @Transactional
     public boolean addParsedReplay(ReplayInfoDTO newReplay) {
         // order is intentional - this is slightly tricky due to constraints
@@ -57,12 +51,16 @@ public class ReplayHubServiceImpl implements ReplayHubService {
         // make sure we dont upload the same replay.
         // file names have a timestamp and are somewhat unique
         try {
-            List<FileInfo> fileInfos = fileInfoJoinRepository.findByName(newReplay.getFileName());
-            Assert.isTrue(fileInfos.isEmpty());
+            List<FileInfo> fileInfos = fileInfoRepository.findByName(newReplay.getFileName());
+            if (!fileInfos.isEmpty()) {
+                // already uploaded
+                return false;
+            }
+            //Assert.isTrue(fileInfos.isEmpty());
 
             Map map = null;
             long mapWorkshopId = newReplay.getMapWorkshopId();
-            if (mapWorkshopId == 0){
+            if (mapWorkshopId == 0) {
                 // old header or no id, try to find by name
                 List<Map> mapsByName = mapRepository.findByName(newReplay.getMapName());
                 if (!mapsByName.isEmpty()) {
@@ -111,25 +109,26 @@ public class ReplayHubServiceImpl implements ReplayHubService {
 
             // add file meta data
             // make file contents first if present
+            // FILE CONTENTS moved to /addFile
             // well we always have to add something currnetly
-            File file = new File();
-            file.setId(UUID.randomUUID());
-            file.setContents(newReplay.getFileContents());
-            if (file.getContents() == null) {
-                byte[] contents = {(byte) 255};
-                file.setContents(contents);
-            }
+            //File file = new File();
+            //file.setId(UUID.randomUUID());
+            //file.setContents(newReplay.getFileContents());
+            //if (file.getContents() == null) {
+            //    byte[] contents = {(byte) 255};
+            //    file.setContents(contents);
+            //}
 
-            fileRepository.save(file);
+            //fileRepository.save(file);
 
             FileInfo newFileInfo = new FileInfo();
             newFileInfo.setId(UUID.randomUUID());
             newFileInfo.setName(newReplay.getFileName());
             newFileInfo.setGameId(game.getId());
-            newFileInfo.setContentsId(file.getId());
+            //newFileInfo.setContentsId(file.getId());
             // dont rely on contents, they could have skipped upload
             newFileInfo.setSize(newReplay.getFileSize());
-            fileInfoJoinRepository.save(newFileInfo);
+            fileInfoRepository.save(newFileInfo);
 
             // next do player stuff for all players present
 
@@ -156,7 +155,7 @@ public class ReplayHubServiceImpl implements ReplayHubService {
                     playerGameJoinRepository.save(playerGame);
 
                     // dont forget to check to update all aliases for this player
-                    AddPlayerAlias(player);
+                    addPlayerAlias(player);
                 }
             } catch (Exception ex) {
                 return false;
@@ -168,12 +167,40 @@ public class ReplayHubServiceImpl implements ReplayHubService {
         }
     }
 
-    private void AddPlayerAlias(ReplayInfoPlayerDTO player) {
+    @Override
+    public String addFile(String filename, byte[] contents) {
+        // first thing we need to do is find the metadata for given file
+        // if it doesnt exist, thats when we would parse server side (TODO)
+
+        List<FileInfo> fileInfos =  fileInfoRepository.findByName(filename);
+        if (fileInfos.isEmpty()){
+            // PARSE HERE TODO
+            return "";
+        }
+        FileInfo fileInfo = fileInfos.get(0);
+
+        // we shouldnt end up with more than one file info per replay
+        Assert.isTrue(fileInfos.size() == 1);
+
+        File dbFile = new File();
+        dbFile.setId(UUID.randomUUID());
+        dbFile.setContents(contents);
+
+        fileRepository.save(dbFile);
+
+        fileInfo.setContentsId(dbFile.getId());
+        fileInfo.setSize(contents.length);
+        fileInfoRepository.save(fileInfo);
+
+        return "OK";
+    }
+
+    private void addPlayerAlias(ReplayInfoPlayerDTO player) {
         // see if we have any for current name, if not add
         List<PlayerName> playerNames = playerNameJoinRepository.findByPlayerSteamId(player.getSteamId());
         // if its empty, first time seeing this player, so we know we can add
         // else we check if its just a new alias
-        if (playerNames.isEmpty() || playerNames.stream().allMatch(pn -> !pn.getName().equals(player.getName()))){
+        if (playerNames.isEmpty() || playerNames.stream().allMatch(pn -> !pn.getName().equals(player.getName()))) {
             PlayerName newAlias = new PlayerName();
             newAlias.setId(UUID.randomUUID());
             newAlias.setPlayerSteamId(player.getSteamId());

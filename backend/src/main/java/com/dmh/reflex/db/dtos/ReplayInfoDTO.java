@@ -27,7 +27,7 @@ public class ReplayInfoDTO {
 
     private int fileSize;
 
-    private byte[] fileContents;
+    //private byte[] fileContents;
 
     private List<ReplayInfoPlayerDTO> players;
 
@@ -103,11 +103,11 @@ public class ReplayInfoDTO {
         this.fileSize = fileSize;
     }
 
-    public byte[] getFileContents() {
-        return fileContents;
-    }
-
-    public void setFileContents(byte[] fileContents) {
-        this.fileContents = fileContents;
-    }
+//    public byte[] getFileContents() {
+//        return fileContents;
+//    }
+//
+//    public void setFileContents(byte[] fileContents) {
+//        this.fileContents = fileContents;
+//    }
 }
