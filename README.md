@@ -1,6 +1,7 @@
-This is the frontend (and simple api to host replays not in a wwwroot)
-for [fragged.online](http://fragged.online) reflex server replay list
+This is the website and backend (database of metadata for replays) for
+for [fragged.online](http://fragged.online) reflex server replay repo
 
-This was made from a [Brunch](http://brunch.io) skeleton (brunch/with-redux) with React and Redux.
+The front end is written in React w/ redux, built with [Brunch](http://brunch.io). 
+The back end is Spring boot hitting a postgresql db
 
 ok cool
