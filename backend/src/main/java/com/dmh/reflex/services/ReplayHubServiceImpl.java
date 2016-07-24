@@ -6,6 +6,7 @@ import com.dmh.reflex.db.entities.*;
 import com.dmh.reflex.db.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -46,6 +47,7 @@ public class ReplayHubServiceImpl implements ReplayHubService {
     }
 
     @Override
+    @Transactional
     public boolean addParsedReplay(ReplayInfoDTO newReplay) {
         // order is intentional - this is slightly tricky due to constraints
 
@@ -57,7 +59,11 @@ public class ReplayHubServiceImpl implements ReplayHubService {
             List<FileInfo> fileInfos = fileInfoJoinRepository.findByName(newReplay.getFileName());
             Assert.isTrue(fileInfos.isEmpty());
 
-            Map map = mapRepository.findOne(newReplay.getMapWorkshopId());
+            long mapWorkshopId = newReplay.getMapWorkshopId();
+            if (mapWorkshopId == 0){
+                // old header
+            }
+            Map map = mapRepository.findOne(mapWorkshopId);
             if (map == null) {
                 // TODO: assumes no maps of same name exist without map workshop id for now
                 // which is possible because it was added in later replay header proto
